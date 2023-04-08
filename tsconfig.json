@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "target": "es5",
+        "strict": true,
+        "esModuleInterop": true,
+        "outDir": "dist",
+    },
+    "include": ["src"]
+}
