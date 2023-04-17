@@ -1,12 +1,31 @@
 import threading
 from mcts import MCTS, MCTSNode
 import numpy as np
+from numba import njit
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
+
+warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+
+
+@njit
+def action_probs_numba_helper(actions, policy_probs):
+    action_probs = np.zeros(len(actions))
+    for i, action in enumerate(actions):
+        if action != -1:
+            action_probs[i] = policy_probs[action]
+        else:
+            actions[i] = 0
+    action_probs /= np.sum(action_probs)
+    return action_probs
 
 class ParallelMCTSNode(MCTSNode):
-    def __init__(self, state, model, prior_prob=1.0, parent=None, action=None, virtual_loss=1):
-        super().__init__(state, model, prior_prob, parent, action)
+    def __init__(self, state, mcts, prior_prob=1.0, parent=None, action=None, virtual_loss=1):
+        super().__init__(state, mcts, prior_prob, parent, action)
         self.virtual_loss = virtual_loss
         self.lock = threading.Lock()
+        self.visited = False
 
     def select(self, c_param):
         with self.lock:
@@ -16,9 +35,20 @@ class ParallelMCTSNode(MCTSNode):
                 selected_child.add_virtual_loss()
                 return selected_child
 
+            elif self.reached:
+                with self.mcts.expansion_lock:
+                    self.mcts.process_prediction_queue(self, c_param)
+
             # The node has not been visited before. Expand the node.
             elif len(self.children) == 0:
-                self.expand_all()
+                with self.mcts.expansion_lock:
+                    if self.visited:
+                        selected_child = self.best_child(c_param)
+                        selected_child.add_virtual_loss()
+                        return selected_child
+
+                    self.expand_all()
+                    self.reached = True
 
             else:
                 raise Exception("This should never happen")
@@ -55,9 +85,16 @@ class ParallelMCTSNode(MCTSNode):
         self.children.append(child)
         return child
 
+    def expand_all(self):
+        self.mcts.prediction_queue.append(self)
+        if len(self.mcts.prediction_queue) >= self.mcts.batch_size:
+            self.mcts.process_prediction_queue(self, self.mcts.c_param)
+            self.reached = False # We no longer need to flag this for processing.
+
 class ParallelMCTS(MCTS):
-    def __init__(self, state, model, num_simulations, c_param=4, num_threads=8):
+    def __init__(self, state, model, num_simulations, c_param=4, num_threads=4):
         self.model = model
+        self.expansion_lock = threading.Lock()
         root = ParallelMCTSNode(state, self)
         super().__init__(root, model, num_simulations, c_param)
         self.num_threads = num_threads
@@ -78,6 +115,10 @@ class ParallelMCTS(MCTS):
         for t in threads:
             t.join()
 
+        # Process any remaining queued states
+        if len(self.prediction_queue) > 0:
+            self.process_prediction_queue(self.root, self.c_param)
+
     def worker(self, num_simulations):
         for _ in range(num_simulations):
             self.run_simulation()
@@ -85,7 +126,7 @@ class ParallelMCTS(MCTS):
     def run_simulation(self):
         node = self.root
         depth = 0
-        while not node.state.is_terminal() and depth < self.depth_limit:
+        while not node.state.is_terminal():
             child = node.select(self.c_param)
             if child is None:
                 break
@@ -99,6 +140,23 @@ class ParallelMCTS(MCTS):
             value = -value
         node.backpropagate(value)
         node.remove_virtual_loss()
+
+    def process_prediction_queue(self, cur, c_param):
+        if len(self.prediction_queue) == 0:
+            selected_child = cur.best_child(c_param)
+            selected_child.add_virtual_loss()
+            return selected_child
+        batch_states = [node.state.get_board() for node in self.prediction_queue]
+        input_tensor = np.array(batch_states, dtype=np.float32)
+        batch_probs, values = self.model.batched_predict(input_tensor, threads=self.num_threads, processes=4)
+
+        for node, prior_probs, value in zip(self.prediction_queue, batch_probs, values):
+            filtered_probs = action_probs_numba_helper(node.valid_actions, prior_probs)
+            node.expand_from_queue(filtered_probs)
+            node.value = value
+
+        self.prediction_queue.clear()
+        self.visited = True
 
     def reset(self, state):
         self.root = ParallelMCTSNode(state, self)

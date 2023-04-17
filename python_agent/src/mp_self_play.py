@@ -101,7 +101,7 @@ def get_reward(result, length, value):
 # If you do not want multiprocessing, just make a copy of episode() and remove the multiprocessing code.
 def episode(args):
     # Use multiple threads? Slightly faster but not nearly as much as processes.
-    PARALLELIZE_MCTS = True
+    PARALLELIZE_MCTS = False
 
     model_weights, num_simulations, num_games = args
     model = Connect4Model()

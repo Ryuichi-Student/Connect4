@@ -93,6 +93,22 @@ class Connect4Model:
 
         return action_probs[0], value[0][0]
 
+    def batched_predict(self, boards, threads=0, processes=0):
+        # Check this on a non-Mac machine.
+        if threads*processes != 0:
+            # For some reason, this is needed to prevent the model from crashing the ParallelMCTS version.
+            # Maybe this is a Mac thing?
+            # MPSGraphExecutable.mm:630: failed assertion
+            # `Error: Input feed tensor not found in placeholders, tensor corresponds to operation: mps_placeholder_1
+            sleep(0.0015*threads*processes)
+        current_player_boards = np.where(boards == 1, 1, 0)
+        opponent_boards = np.where(boards == -1, 1, 0)
+        input_boards = np.stack((current_player_boards, opponent_boards), axis=-1)  # Shape: (N, 6, 7, 2)
+        action_probs, values = self.model.predict(input_boards, verbose=0)
+        self.predict_called += 1
+
+        return action_probs, values
+
     def fit(self, inputs, outputs, epochs, batch_size, learning_rate):
         current_player_boards = np.where(inputs == 1, 1, 0)
         opponent_boards = np.where(inputs == -1, 1, 0)
