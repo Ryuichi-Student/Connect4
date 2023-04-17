@@ -1,7 +1,8 @@
 // src/board.ts
 
+// src/types.ts
 export class GameBoard {
-    board: number[][];
+    bitboards: [bigint, bigint];
     rows: number;
     cols: number;
     firstAvailableRows: number[];
@@ -9,13 +10,13 @@ export class GameBoard {
     constructor(rows: number, cols: number) {
         this.rows = rows;
         this.cols = cols;
-        this.board = new Array(rows).fill(null).map(() => new Array(cols).fill(0));
-        this.firstAvailableRows = new Array(cols).fill(rows - 1);
+        this.bitboards = [0n, 0n];
+        this.firstAvailableRows = new Array(cols).fill(0);
     }
 }
 
 export interface Strategy {
-    chooseColumn(board: GameBoard): number;
+    chooseColumn(board: GameBoard): number | Promise<number>;
 }
 
 // The rest of the code in board.ts remains the same

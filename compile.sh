@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "Hello world"
+echo "Compiling"
 tsc
 python rename.py
