@@ -57,15 +57,9 @@ class Connect4State:
         return self.has_winner() or self.is_full()
 
     def has_winner(self):
-        # for row in range(self.rows):
-        #     for col in range(self.cols):
-        #         if self.board[row][col] != 0 and check_line(self.board, row, col, self.rows, self.cols):
-        #             return True
-        # return False
         return has_winner_numba(self.board, self.rows, self.cols)
 
     def is_full(self):
-        # return (self.board != 0).all()
         return is_full_numba(self.board, self.rows, self.cols)
 
     def simulate(self, action):

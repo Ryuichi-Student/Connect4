@@ -1,7 +1,9 @@
+# Note: There are a lot of micro-optimizations not present, but this is left for readability and ease of use.
+
 import os
 import numpy as np
 from my_model import Connect4Model
-from mcts import MCTS, MCTSNode
+from mcts import MCTS
 from game import Connect4State
 from tqdm import tqdm
 from tqdm.auto import tqdm as tqdm_auto
@@ -9,92 +11,112 @@ import multiprocessing as mp
 import pickle
 from sys import getsizeof
 import gc
-from parallel_mcts import ParallelMCTSNode, ParallelMCTS
+from parallel_mcts import ParallelMCTS
 from tensorflow.keras.backend import clear_session
-import cProfile
-from pstats import Stats
 
+# Use to profile code.
+# import cProfile
+# from pstats import Stats
+# pr = cProfile.Profile()
+# pr.enable()
+# pr.disable()
+# stats = Stats(pr)
+# stats.sort_stats('tottime').print_stats(10)
 
-# from tensorflow.python.client import device_lib
-#
-# def get_available_devices():
-#     local_device_protos = device_lib.list_local_devices()
-#     return [x.name for x in local_device_protos if x.device_type == 'GPU' or x.device_type == 'CPU']
-#
-# print(get_available_devices())
-# exit(0)
-
-
-# 9mins per game for 1 process.
-# 3mins per game for 5 processes.
-# With just parallelizing MCTS, 1 process is 6mins per game.
-
-
-# obj file size function from stackoverflow.
-def get_obj_size(obj):
-    marked = {id(obj)}
-    obj_q = [obj]
-    sz = 0
-    gc.collect()
-
-    while obj_q:
-        sz += sum(map(getsizeof, obj_q))
-
-        # Lookup all the object referred to by the object in obj_q.
-        # See: https://docs.python.org/3.7/library/gc.html#gc.get_referents
-        all_refr = ((id(o), o) for o in gc.get_referents(*obj_q))
-
-        # Filter object that are already marked.
-        # Using dict notation will prevent repeated objects.
-        new_refr = {o_id: o for o_id, o in all_refr if o_id not in marked and not isinstance(o, type)}
-
-        # The new obj_q will be the ones that were not marked,
-        # and we will update marked with their ids so we will
-        # not traverse them again.
-        obj_q = new_refr.values()
-        marked.update(new_refr.keys())
-
-
-    return sz
-
+__config = {
+    "load_parameters": {
+        # If true, load all data from REUSE_DATA_FROM to START_ITERATION and train on that.
+        "TRAIN_FROM_PREVIOUS": False,
+        "REUSE_DATA_FROM": 1,
+        # If true, load the previous best model.
+        "LOAD_FROM_PREVIOUS": True,
+        "START_ITERATION": 20,
+        "LAST_ITERATION": 101,
+        "MODEL_PATH": "python_agent/src/models/checkpoint",
+        "BEST_MODEL_PATH": "python_agent/src/models/best_model",
+    },
+    "self_play_parameters": {
+        "num_simulations": 200,
+        # Total number of games is num_processes * mp_num_games * episodes_per_process
+        "mp_num_games": 3,
+        "num_processes": 4,
+        "episodes_per_process": 2,
+    },
+    "evaluation_parameters": {
+        "win_rate_threshold": 0.7,
+        "evaluation_interval": 3,
+        "num_evaluation_games": 9,
+        # Number of processes to use to pit the models against each other. A good hallmark is num_processes/2.
+        "pit_processes": 3
+    },
+    "training_parameters": {
+        "renew_data_interval": 5,
+        "epochs": 60,  # Number of training epochs
+        "batch_size": 64,
+        # The worst thing to do is to have a learning_rate too high.
+        # For example, a lr of 0.01 causes the model to converge to predicting every board value as 1.
+        "learning_rate": 0.0001,
+    }
+}
 
 def _play_game(state, mcts):
-    state.reset()
+    # Make sure the state and mcts are reset, though they should already be.
+    mcts.reset(state)
+
     game_data = []
     length = 0
     while not state.is_terminal():
         length += 1
+        # Run num_simulations simulations.
         mcts.run()
         actions = state.get_valid_moves()
+
+        # The value prediction is the model's idea of how likely it is for the CURRENT player to win.
         action_probs, value = mcts.get_action_probs(state, actions)
+
+        # Pick an action based on the search policy.
         search_policy = mcts.get_search_policy()
         action = np.random.choice(actions, p=search_policy)
+
         mcts.set_root(action)
-        game_data.append((state.get_board(), search_policy, value))
         state = state.simulate(action)
+
+        game_data.append((state.get_board(), search_policy, value))
+
+        # This should never be called. This will help debugging.
         if length > 42:
             raise Exception("Game is too long. Something went wrong.")
     return state, mcts, game_data, length
 
 
+def get_reward(result, length, value):
+    # Reward longer losses and shorter wins.
+    CONSTANTS = {"result": 0.5, "value": 0.5, "length": 0.4/42}
+    length_factor = length * CONSTANTS["length"]
+    # Use a linear combination of result and value
+    reward = result * (1-length_factor) * CONSTANTS["result"] + value * CONSTANTS["value"]
+    return reward
+
+
+# If you do not want multiprocessing, just make a copy of episode() and remove the multiprocessing code.
 def episode(args):
-    PARALLELIZE_MCTS = False
+    # Use multiple threads? Slightly faster but not nearly as much as processes.
+    PARALLELIZE_MCTS = True
+
     model_weights, num_simulations, num_games = args
     model = Connect4Model()
     model.load_weights(model_weights)
-    data = []
     state = Connect4State()
 
+    data = []
 
     for _ in tqdm_auto(range(num_games)):
-        # Ignore errors because of memory leaks.
+        # Catches any errors which would otherwise cause the program to simply hang.
         try:
             if PARALLELIZE_MCTS:
                 mcts = ParallelMCTS(state, model, num_simulations, num_threads=3)
             else:
                 mcts = MCTS(state, model, num_simulations)
-            # Doubles down as a garbage collector
-            # print(f"mcts is of size {get_obj_size(mcts)}")
 
             state, mcts, game_data, length = _play_game(state, mcts)
 
@@ -102,38 +124,29 @@ def episode(args):
             # We want the model to predict that the last position is a win for the current player.
             result = state.has_winner()
             for board, policy, value in game_data[::-1]:
-                # TODO: Average v and q
-                data.append((board, policy, result))
-                data.append((np.flip(board, axis=1), policy[::-1], result))
+                reward = get_reward(result, length, value)
+                data.append((board, policy, reward))
+                data.append((np.flip(board, axis=1), policy[::-1], reward))
                 result = -result
 
-
-            # print(f"Data is of size: {get_obj_size(game_data)}")
-
-            # Reward longer losses and shorter wins.
-            # length_factor = length * 0.4/42
-            # rewards = [result * (1-length_factor) for result in results]
-            # data.extend([(board, action_probs, 0) for board, action_probs, value, player in game_data[:2]])
-
-            # SUPER IMPORTANT! This is what was causing the RAM usage to skyrocket.
+            # SUPER IMPORTANT! Without this, RAM usage skyrockets.
             clear_session()
             gc.collect()
         except Exception as e:
             print("ERROR OCCURED. SKIPPING GAME.")
             print("Exception called was ", e)
             pass
-    # print(result)
-    # print(state.get_board())
-    # print("\n".join(str(x) for x in data))
-    # sleep(30)
-    print(getsizeof(data))
+
+    print(f"Data is of size {getsizeof(data)}")
     return data
 
 
+# With 6 processes, this offers a 5x speedup on my Macbook. Almost linear scaling!
 def mp_self_play(model, num_simulations, num_games, num_processes, episodes_per_process, iteration):
-    # With 6 processes, this offers a 5x speedup. Almost linear scaling!
+    # Save the model weights to a temporary file so that each process can load it.
     model_weights = "temp_weights.h5"
     model.save_weights(model_weights)
+
     data = []
     for i in range(num_games):
         print(f"Starting batch {i}")
@@ -149,62 +162,34 @@ def mp_self_play(model, num_simulations, num_games, num_processes, episodes_per_
                 data.extend(res)
 
     os.remove(model_weights)
+
     print("pickling data")
     pickle.dump(data, open(f"python_agent/data/data{iteration}.p", "wb" ))
     return data
 
 
-def self_play(model, num_simulations, num_games, iteration):
-    # Non multiprocessing version
-    PARALLELIZE_MCTS = False
-    data = []
-    state = Connect4State()
-
-    for _ in tqdm(range(num_games)):
-        state.reset()
-        if PARALLELIZE_MCTS:
-            mcts = ParallelMCTS(state, model, num_simulations)
-        else:
-            mcts = MCTS(state, model, num_simulations)
-        # Doubles down as a garbage collector
-        print(f"mcts is of size {get_obj_size(mcts)}")
-        state, mcts, game_data, length = _play_game(state, mcts)
-
-        result = state.get_result()
-        print(f"Data is of size: {get_obj_size(game_data)}")
-
-        # If the result*player is -1, the player lost so the value should be *-1.
-        results = [-result * player for _, _, value, player in game_data]
-        length_factor = length * 0.4 / 42
-        rewards = [result * (1 - length_factor) for result in results]
-        # data.extend([(board, action_probs, 0) for board, action_probs, value, player in game_data[:2]])
-
-        # TODO: Find how to average v and q
-        data.extend(
-            [(board, action_probs, reward) for (board, action_probs, value, player), reward in zip(game_data, rewards)])
-        clear_session()
-    # save data in pickle format
-    pickle.dump(data, open(f"python_agent/data/data{iteration}.p", "wb" ))
-
-    return data
-
-
 def train(model, data, epochs, batch_size, learning_rate=None):
+    # data is of the form (board, action_probs, result)
     boards, action_probs, results = zip(*data)
     boards = np.array(boards, dtype=np.float32)
+
+    # The search policies are the "better" action_probs
     action_probs = np.array(action_probs, dtype=np.float32)
     results = np.array(results, dtype=np.float32)
 
     model.fit(boards, [action_probs, results], epochs=epochs, batch_size=batch_size, learning_rate=learning_rate)
 
 
-def play_game(args):
+# A game between two models.
+def versus(args):
     model1_weights, model2_weights, num_simulations = args
+
     model1 = Connect4Model()
     model1.load_weights(model1_weights)
     model2 = Connect4Model()
     model2.load_weights(model2_weights)
     state = Connect4State()
+
     PARALLELIZE_MCTS = False
     if PARALLELIZE_MCTS:
         mcts1 = ParallelMCTS(state, model1, num_simulations, num_threads=2)
@@ -212,26 +197,24 @@ def play_game(args):
     else:
         mcts1 = MCTS(state, model1, num_simulations)
         mcts2 = MCTS(state, model2, num_simulations)
-    p1 = True
+
     length = 0
+
+    cur, opp = mcts1, mcts2
     while not state.is_terminal():
-        if p1:
-            mcts1.run()
-            action = mcts1.get_best_move()
-        else:
-            mcts2.run()
-            action = mcts2.get_best_move()
+        cur.run()
+        action = cur.get_best_move()
         mcts1.set_root(action)
         mcts2.set_root(action)
-        # action = actions[np.argmax(action_probs)]
         state = state.simulate(action)
-        p1 = not p1
+        cur, opp = opp, cur
         if length > 42:
             raise Exception("Something went wrong. Game is too long.")
+
     return state.get_result()
 
 
-def pit(model1, model2, num_evaluation_games):
+def pit(model1, model2, num_evaluation_games, num_processes):
     wins, draws, losses = 0, 0, 0
 
     model1_weights = "temp_weights1.h5"
@@ -239,11 +222,12 @@ def pit(model1, model2, num_evaluation_games):
     model1.save_weights(model1_weights)
     model2.save_weights(model2_weights)
 
-    with mp.Pool(processes=4) as pool:
-        winners = list(tqdm(pool.imap(play_game, [(model1_weights, model2_weights, 10)
+    with mp.Pool(processes=num_processes) as pool:
+        winners = list(tqdm(pool.imap(versus, [(model1_weights, model2_weights, 10)
                                                   for _ in range(num_evaluation_games//2)]), total=num_evaluation_games//2))
-        losers = list(tqdm(pool.imap(play_game, [(model2_weights, model1_weights, 10)
+        losers = list(tqdm(pool.imap(versus, [(model2_weights, model1_weights, 10)
                                                  for _ in range(num_evaluation_games//2)]), total=num_evaluation_games//2))
+
     for winner in winners:
         if winner == 1:
             wins += 1
@@ -265,87 +249,64 @@ def pit(model1, model2, num_evaluation_games):
     gc.collect()
     return win_rate
 
-def main():
-    TRAIN_FROM_PREVIOUS = False
-    LOAD_FROM_PREVIOUS = True
-    START_ITERATION = 19
-    REUSE_DATA_FROM = 19
 
-    # 10-15 mins per game, per process with 150 simulations per move.
-    num_simulations = 200
-    mp_num_games = 2
-    # Would go for 8 but that really taxes the Macbook, which starts heating up.
-    # 6 just keeps fans turned on but doesn't heat up.
-    num_processes = 4
-    episodes_per_process = 2
-    # Let's not waste the precious data we spent so long collecting
-    epochs = 60
-    batch_size = 64
-    evaluation_interval = 3  # Evaluate every 3 iterations
-    num_evaluation_games = 8
-    win_rate_threshold = 0.7
-    num_games = 1
-    renew_data_interval = 5
+def main():
+    load_config = __config["load_parameters"]
+    self_play_config = __config["self_play_parameters"]
+    train_config = __config["training_parameters"]
+    evaluation_config = __config["evaluation_parameters"]
 
     model = Connect4Model()
     best_model = Connect4Model()
-    model_path = "python_agent/src/models/checkpoint"
-    best_model_path = "python_agent/src/models/best_model"
+    model_path = load_config["MODEL_PATH"]
+    best_model_path = load_config["BEST_MODEL_PATH"]
 
     old_data = []
 
-    if LOAD_FROM_PREVIOUS:
+    if load_config["LOAD_FROM_PREVIOUS"]:
         model.load_weights(best_model_path)
         best_model.load_weights(best_model_path)
 
-    if START_ITERATION > 1:
+    if load_config["TRAIN_FROM_PREVIOUS"]:
         previous_data = []
-        for i in range(REUSE_DATA_FROM, START_ITERATION):
+        for i in range(load_config["REUSE_DATA_FROM"], load_config["START_ITERATION"]):
             with open(f"python_agent/data/data{i}.p", "rb" ) as tmp:
                 previous_data.extend(pickle.load(tmp))
-        old_data.extend(previous_data)
-        if TRAIN_FROM_PREVIOUS:
-            # train(model,model previous_data, epochs=epochs//2, batch_size=batch_size, learning_rate=0.02)
-            train(model, previous_data, epochs=50, batch_size=batch_size, learning_rate=0.0001)
-            model.save_weights(model_path)
 
-            win_rate = pit(model, best_model, 10)
-            print("win rate: ", win_rate)
+        train(model, previous_data, epochs=train_config["epochs"],
+              batch_size=train_config["batch_size"], learning_rate=train_config["learning_rate"])
+        model.save_weights(model_path)
 
-            if win_rate > win_rate_threshold:
-                print("New model is better, updating best model.")
-                best_model.load_weights(model_path)
-                best_model.save_weights(best_model_path)
-            # else:
-            #     exit(0)
-    for iteration in range(START_ITERATION, 101):
-        num_simulations += 1
+        win_rate = pit(model, best_model, 10)
+
+        if win_rate > evaluation_config["win_rate_threshold"]:
+            print("New model is better, updating best model.")
+            best_model.load_weights(model_path)
+            best_model.save_weights(best_model_path)
+
+    for iteration in range(load_config["START_ITERATION"], load_config["LAST_ITERATION"]):
         print(f"Training iteration {iteration}")
-        # Total number of games is num_processes * mp_num_games * episodes_per_process
-        # pr = cProfile.Profile()
-        # pr.enable()
-        data = mp_self_play(best_model, num_simulations, mp_num_games, num_processes, episodes_per_process, iteration)
-        # data = self_play(best_model, num_simulations, num_games, iteration)
-        # pr.disable()
-        # stats = Stats(pr)
-        # stats.sort_stats('tottime').print_stats(10)
-        # exit(0)
+
+        data = mp_self_play(best_model, self_play_config["num_simulations"],
+                            self_play_config["mp_num_games"], self_play_config["num_processes"],
+                            self_play_config["episodes_per_process"], iteration)
         old_data.extend(data)
 
-        train(model, old_data, epochs=epochs, batch_size=batch_size, learning_rate=0.0001)
+        train(model, old_data, epochs=train_config["epochs"],
+              batch_size=train_config["batch_size"], learning_rate=train_config["learning_rate"])
 
-        if iteration % renew_data_interval == 0:
+        if iteration % train_config["renew_data_interval"] == 0:
             old_data = []
 
-        if iteration % evaluation_interval == 0:
+        if iteration % evaluation_config["evaluation_interval"] == 0:
             model.save_weights(model_path)
-            win_rate = pit(model, best_model, num_evaluation_games)
+            win_rate = pit(model, best_model,
+                           evaluation_config["num_evaluation_games"], evaluation_config["pit_processes"])
 
-            if win_rate > win_rate_threshold:
+            if win_rate > evaluation_config["win_rate_threshold"]:
                 print("New model is better, updating best model.")
                 best_model.load_weights(model_path)
                 best_model.save_weights(best_model_path)
-
 
 
 if __name__ == "__main__":

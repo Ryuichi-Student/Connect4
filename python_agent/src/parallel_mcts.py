@@ -10,26 +10,18 @@ class ParallelMCTSNode(MCTSNode):
 
     def select(self, c_param):
         with self.lock:
+            # The node has been visited and expanded before. Choose the best child node.
             if self.is_fully_expanded():
-                if not self.children:
-                    return None
                 selected_child = self.best_child(c_param)
                 selected_child.add_virtual_loss()
                 return selected_child
+
+            # The node has not been visited before. Expand the node.
+            elif len(self.children) == 0:
+                self.expand_all()
+
             else:
-                if self.prior_probs is None:
-                    self.prior_probs, _ = self.mcts.get_action_probs(self.state, self.valid_actions)
-                # Expand the current node
-
-                action = self.untried_actions[np.random.randint(0, len(self.untried_actions))]
-                next_state = self.state.simulate(action)
-
-                # Get prior probability for the action from the model
-                prior_prob = self.prior_probs[action]
-
-                child_node = self.expand(action, next_state, prior_prob)
-                child_node.add_virtual_loss()
-                return child_node
+                raise Exception("This should never happen")
 
     def get_ucb_score(self, c_param):
         if self.N == 0 or self.parent.N == 0:
@@ -63,9 +55,8 @@ class ParallelMCTSNode(MCTSNode):
         self.children.append(child)
         return child
 
-
 class ParallelMCTS(MCTS):
-    def __init__(self, state, model, num_simulations, c_param=1, num_threads=8):
+    def __init__(self, state, model, num_simulations, c_param=4, num_threads=8):
         self.model = model
         root = ParallelMCTSNode(state, self)
         super().__init__(root, model, num_simulations, c_param)
@@ -105,6 +96,7 @@ class ParallelMCTS(MCTS):
             value = state.has_winner()
         else:
             _, value = self.model.predict(state.get_board())
+            value = -value
         node.backpropagate(value)
         node.remove_virtual_loss()
 

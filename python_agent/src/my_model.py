@@ -1,5 +1,3 @@
-import tensorflow as tf
-from tensorflow.keras import layers, Model
 from tensorflow.keras.optimizers import legacy as legacy_optimizers
 import numpy as np
 import cProfile
@@ -9,7 +7,6 @@ from tensorflow.keras import backend
 
 # disable_eager_execution()
 
-import tensorflow as tf
 from tensorflow.keras import layers, models, optimizers, losses, regularizers
 
 def create_model(input_shape=(6, 7, 2)):
