@@ -36,15 +36,22 @@ class MCTSNode:
         self.mcts = mcts
         self.cached_ucb_score = None
 
+        # For batched predictions, flag for processing the queue
+        self.reached = False
+
     def select(self, c_param):
         # The node has been visited and expanded before. Choose the best child node.
         if self.is_fully_expanded():
             selected_child = self.best_child(c_param)
             return selected_child
 
+        elif self.reached:
+            self.mcts.process_prediction_queue()
+
         # The node has not been visited before. Expand the node.
         elif len(self.children) == 0:
             self.expand_all()
+            self.reached = True
 
         else:
             raise Exception("This should never happen")
@@ -69,13 +76,17 @@ class MCTSNode:
             current = current.parent
             value = -value # The value is always from the perspective of the player on the node.
 
-    def expand_all(self):
-        prior_probs, _ = self.mcts.get_action_probs(self.state, self.valid_actions)
-
+    def expand_from_queue(self, prior_probs):
         for action in self.untried_actions.copy()[::-1]:
             next_state = self.state.simulate(action)
             P = prior_probs[action]
             self.expand(action, next_state, P)
+
+    def expand_all(self):
+        self.mcts.prediction_queue.append(self)
+        if len(self.mcts.prediction_queue) >= self.mcts.batch_size:
+            self.mcts.process_prediction_queue()
+            self.reached = False # We no longer need to flag this for processing.
 
     def expand(self, action, next_state, P):
         child = MCTSNode(next_state, self.mcts, P, parent=self, action=action)
@@ -100,7 +111,7 @@ class MCTSNode:
 
 
 class MCTS:
-    def __init__(self, state, model, num_simulations, c_param=4):
+    def __init__(self, state, model, num_simulations, c_param=4, max_batch_size=64):
         self.model = model
         self.num_simulations = num_simulations
         self.c_param = c_param
@@ -108,11 +119,19 @@ class MCTS:
             self.root = state
         else:
             self.root = MCTSNode(state, self)
-        self.depth_limit = 6
+
+        # We want to predict in batches to remove the overhead of calling the model.
+        self.batch_size = max_batch_size
+        self.prediction_queue = []
+        self.value = None
 
     def run(self):
         for _ in range(self.num_simulations):
             self.run_simulation()
+
+        # Process any remaining queued states
+        if len(self.prediction_queue) > 0:
+            self.process_prediction_queue()
 
     def run_simulation(self):
         node = self.root
@@ -131,7 +150,10 @@ class MCTS:
             # Suppose this is a direct child of the root.
             # If this is winning for the current player of this state,
             # we want to pick the lowest value possible.
-            _, value = self.model.predict(state.get_board())
+            if self.value is None:
+                _, value = self.model.predict(state.get_board())
+            else:
+                value = self.value
             value = -value
 
         node.backpropagate(value)
@@ -144,6 +166,18 @@ class MCTS:
 
         action_probs = action_probs_numba_helper(actions, action_probs)
         return action_probs, value
+
+    def process_prediction_queue(self):
+        batch_states = [node.state.get_board() for node in self.prediction_queue]
+        input_tensor = np.array(batch_states, dtype=np.float32)
+        batch_probs, values = self.model.batched_predict(input_tensor)
+
+        for node, prior_probs, value in zip(self.prediction_queue, batch_probs, values):
+            filtered_probs = action_probs_numba_helper(node.valid_actions, prior_probs)
+            node.expand_from_queue(filtered_probs)
+            node.value = value
+
+        self.prediction_queue.clear()
 
     def get_best_move(self):
         # The best move is the one with the highest visit count (not the highest average value).
