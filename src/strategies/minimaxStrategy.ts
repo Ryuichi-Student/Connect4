@@ -1,6 +1,6 @@
 // strategies/minimaxStrategy.ts
 import { GameBoard, Strategy } from "../types.js";
-import { makeMove, isWinningMove, isDraw } from "../board.js";
+import { makeMove, isWinningMove, isDraw, bitboardUndoMove } from "../board.js";
 
 export class minimaxStrategy implements Strategy {
     maxDepth: number;
@@ -11,15 +11,35 @@ export class minimaxStrategy implements Strategy {
 
     chooseColumn(board: GameBoard): number {
         // Get the best move using the minimax algorithm
-        const { column } = this.minimax(board, this.maxDepth, true, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
-
+        const { score, column } = this.minimax(board, this.maxDepth, true, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
+        console.log("" + score + column)
         return column;
     }
 
+    chooseRandomColumn(board: GameBoard): number {
+        // Get an array of available columns
+        const availableColumns: number[] = [];
+        for (let col = 0; col < board.cols; col++) {
+            if (board.firstAvailableRows[col] < board.rows) {
+                availableColumns.push(col)
+            }
+        }
+
+        // If there are no available columns, return -1
+        if (availableColumns.length === 0) {
+            return -1;
+        }
+
+        // Randomly pick a column from the available columns
+        const randomIndex = Math.floor(Math.random() * availableColumns.length);
+        return availableColumns[randomIndex];
+    }
+
     // The minimax algorithm with alpha-beta pruning
+    // strategies/minimaxStrategy.ts
     minimax(board: GameBoard, depth: number, isMaximizingPlayer: boolean, alpha: number, beta: number): { score: number; column: number } {
         if (depth === 0 || isDraw(board)) {
-            return { score: 0, column: -1 };
+            return { score: 0, column: this.chooseRandomColumn(board) };
         }
 
         let bestScore = isMaximizingPlayer ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
@@ -27,15 +47,15 @@ export class minimaxStrategy implements Strategy {
 
         for (let col = 0; col < board.cols; col++) {
             // Check if the column is not full
-            const row = board.firstAvailableRows[col];
-            if (row >= 0) {
+            if (board.firstAvailableRows[col] < board.rows) {
                 // Make the move for the current player (1 for maximizing, 2 for minimizing)
-                makeMove(board, col, isMaximizingPlayer ? 1 : 2);
+                const row = makeMove(board, col, isMaximizingPlayer ? 2 : 1);
 
                 // If the move results in a win, return the appropriate score and column
-                if (isWinningMove(board, row, col, isMaximizingPlayer ? 1 : 2)) {
-                    board.firstAvailableRows[col]++; // Undo the move
-                    board.board[row][col] = 0;
+                if (isWinningMove(board, row, col, isMaximizingPlayer ? 2 : 1)) {
+                    board.bitboards[isMaximizingPlayer ? 1 : 0] = bitboardUndoMove(board.bitboards[isMaximizingPlayer ? 1 : 0], col, row, board.rows); // Undo the move
+
+                    board.firstAvailableRows[col]--; // Decrement the first available row for the column
                     return { score: isMaximizingPlayer ? 1 : -1, column: col };
                 }
 
@@ -56,13 +76,12 @@ export class minimaxStrategy implements Strategy {
                     }
                     beta = Math.min(beta, bestScore);
                 }
-
                 // Undo the move
-                board.firstAvailableRows[col]++;
-                board.board[row][col] = 0;
+                board.bitboards[isMaximizingPlayer ? 1 : 0] = bitboardUndoMove(board.bitboards[isMaximizingPlayer ? 1 : 0], col, row, board.rows); // Undo the move
+                board.firstAvailableRows[col]--; // Decrement the first available row for the column
 
                 // Alpha-beta pruning
-                if (beta <= alpha) {
+                if (beta < alpha) {
                     break;
                 }
             }
@@ -70,4 +89,5 @@ export class minimaxStrategy implements Strategy {
 
         return { score: bestScore, column: bestColumn };
     }
+
 }

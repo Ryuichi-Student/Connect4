@@ -29,18 +29,23 @@ if (gameBoard instanceof HTMLElement) {
             const row = parseInt(target.dataset.row ?? "0", 10);
             const col = parseInt(target.dataset.col ?? "0", 10);
 
-            const gameEnded = handlePlayerMove(gameBoard, board, row, col, currentPlayer);
+            const {gameEnded, draw} = handlePlayerMove(gameBoard, board, row, col, currentPlayer);
+
+            // Special state to check for illegal move
+            if (!gameEnded && draw) { return; }
 
             if (gameEnded) {
                 gameActive = false;
-                updateGameMessage("Player wins!");
+                if (draw) { updateGameMessage("Draw!") }
+                else { updateGameMessage("Player wins!"); }
             } else {
                 currentPlayer = 2;
-                const botWin = handleBotMove(gameBoard, board);
+                const {gameEnded, draw} = handleBotMove(gameBoard, board);
 
-                if (botWin) {
+                if (gameEnded) {
                     gameActive = false;
-                    updateGameMessage("Bot wins!");
+                    if (draw) { updateGameMessage("Draw!") }
+                    else { updateGameMessage("Bot wins!"); }
                 } else {
                     currentPlayer = 1;
                 }
@@ -52,14 +57,14 @@ if (gameBoard instanceof HTMLElement) {
 function resetGame() {
     gameActive = true;
     currentPlayer = 1;
+    board.bitboards = [0n, 0n];
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
-            board.board[row][col] = 0;
             const cell = gameBoard?.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
             delete cell.dataset.player;
         }
     }
-    board.firstAvailableRows = new Array(cols).fill(rows - 1);
+    board.firstAvailableRows = new Array(cols).fill(0);
     updateGameMessage("");
 }
 

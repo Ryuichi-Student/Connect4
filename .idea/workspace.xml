@@ -1,27 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3a966143-458e-47bd-aa05-7451da805eca" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Connect4GPT4.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/compile.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rename.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/board.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/bot.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/gameLogic.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/strategies/minimaxStrategy.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/strategies/randomStrategy.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/strategies/strategies.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/types.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+    <list default="true" id="3a966143-458e-47bd-aa05-7451da805eca" name="Changes" comment="Now includes compiled js files.">
+      <change afterPath="$PROJECT_DIR$/python_agent/data/edit_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/data/play_20230413-192855.473657.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/data/play_20230413-202653.517773.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/data/tmp/data4.p" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/old_data/check_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/old_data/set1/data2.p" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/game.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/mcts.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/mp_self_play.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/my_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/parallel_mcts.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/self_play.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/src/test2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_agent/train.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/strategies/aiStrategy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Connect4GPT4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Connect4GPT4.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/cache/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/cache/pull.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/cache/push.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/docs/cpu-profiling-graph.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/docs/play-6x5.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/docs/play-7x6.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/docs/play-playbook.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/docs/solved-7x6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/docs/train5x5.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/main.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/metrics/docker-compose.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/metrics/grafana/dashboards-all.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/metrics/grafana/dashboards/solver.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/metrics/grafana/datasource.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/metrics/prometheus/prometheus.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/proto/cache.pb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/proto/cache.proto" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/proto/generate.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/python/c4solver.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/python/glue.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/python/pytest.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/python/test_c4solver.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/args.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/browse.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/assert.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/board.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/board_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/cache_iface.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/enum.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/interrupt.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/metrics.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/order.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/order_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/persist.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/player.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/progress.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/solver_iface.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/common/strings.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/cache.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/cache_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/referee.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/referee_legacy.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/referee_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/retrain.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/solver.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/solver_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/generic_solver/stats.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/inline7x6/cache.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/inline7x6/referee.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/inline7x6/retrain.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/inline7x6/solver.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/inline7x6/stats.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/play.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/solver_factory.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/solver_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/solver/train.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c4solver/strategy.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile.sh" beforeDir="false" afterPath="$PROJECT_DIR$/compile.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/board.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/board.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/bot.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bot.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/gameLogic.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/gameLogic.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/strategies/minimaxStrategy.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/strategies/minimaxStrategy.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/strategies/randomStrategy.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/strategies/randomStrategy.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/types.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/types.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/ui.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/ui.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/board.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/board.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bot.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/bot.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gameLogic.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/gameLogic.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategies/minimaxStrategy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategies/minimaxStrategy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategies/randomStrategy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategies/randomStrategy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +117,7 @@
         <option value="tsconfig.json" />
         <option value="HTML File" />
         <option value="TypeScript File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -50,16 +133,128 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "/Users/ryuichileotakashige/IdeaProjects/Connect4GPT4/node_modules/typescript/lib"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/ryuichileotakashige/IdeaProjects/Connect4GPT4&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/ryuichileotakashige/IdeaProjects/Connect4GPT4/node_modules/typescript/lib&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/python_agent/data/tmp" />
+      <recent name="$PROJECT_DIR$/python_agent/data" />
+      <recent name="$PROJECT_DIR$/python_agent/src/old_models" />
+      <recent name="$PROJECT_DIR$/python_agent/old_data/set3" />
+      <recent name="$PROJECT_DIR$/python_agent/old_data" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.check_data">
+    <configuration name="check_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Connect4GPT4" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_agent/old_data" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_agent/old_data/check_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Connect4GPT4" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_agent" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_agent/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="self_play" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Connect4GPT4" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_agent/src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_agent/src/self_play.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Connect4GPT4" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_agent/src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_agent/src/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.check_data" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.self_play" />
+        <item itemvalue="Python.test" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -68,8 +263,31 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1680962739108</updated>
-      <workItem from="1680962740734" duration="14359000" />
+      <workItem from="1680962740734" duration="26627000" />
+      <workItem from="1681042515269" duration="954000" />
+      <workItem from="1681043500916" duration="40437000" />
+      <workItem from="1681246557518" duration="56000" />
+      <workItem from="1681246998583" duration="1384000" />
+      <workItem from="1681248575326" duration="20513000" />
+      <workItem from="1681301103605" duration="33762000" />
+      <workItem from="1681404041382" duration="9504000" />
+      <workItem from="1681460857974" duration="115763000" />
     </task>
+    <task id="LOCAL-00001" summary="First working version.">
+      <created>1680994856527</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1680994856527</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Now includes compiled js files.">
+      <created>1680994909528</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1680994909528</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -85,5 +303,20 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="First working version." />
+    <MESSAGE value="Now includes compiled js files." />
+    <option name="LAST_COMMIT_MESSAGE" value="Now includes compiled js files." />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Connect4GPT4$test.coverage" NAME="test Coverage Results" MODIFIED="1681166252508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/src" />
+    <SUITE FILE_PATH="coverage/Connect4GPT4$check_data.coverage" NAME="check_data Coverage Results" MODIFIED="1681686927573" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/old_data" />
+    <SUITE FILE_PATH="coverage/Connect4GPT4$self_play.coverage" NAME="self_play Coverage Results" MODIFIED="1681209539133" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/src" />
+    <SUITE FILE_PATH="coverage/Connect4GPT4$main.coverage" NAME="main Coverage Results" MODIFIED="1681314978066" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent" />
   </component>
 </project>

@@ -2,14 +2,14 @@
 import { handlePlayerMove, handleBotMove } from "./gameLogic.js";
 import { createBoardUI } from "./ui.js";
 import { createBoard } from "./board.js";
-export var rows = 6;
-export var cols = 7;
-var currentPlayer = 1;
-var gameActive = true;
-var board = createBoard(rows, cols);
-var gameBoard = document.querySelector(".game-board");
-var newGameButton = document.querySelector(".new-game");
-var gameMessage = document.querySelector(".game-message");
+export const rows = 6;
+export const cols = 7;
+let currentPlayer = 1;
+let gameActive = true;
+let board = createBoard(rows, cols);
+const gameBoard = document.querySelector(".game-board");
+const newGameButton = document.querySelector(".new-game");
+const gameMessage = document.querySelector(".game-message");
 function updateGameMessage(message) {
     if (gameMessage) {
         gameMessage.textContent = message;
@@ -17,25 +17,38 @@ function updateGameMessage(message) {
 }
 if (gameBoard instanceof HTMLElement) {
     createBoardUI(gameBoard, rows, cols);
-    gameBoard.addEventListener("click", function (event) {
-        var _a, _b;
+    gameBoard.addEventListener("click", (event) => {
         if (!gameActive)
             return;
-        var target = event.target;
+        const target = event.target;
         if (target.classList.contains("cell")) {
-            var row = parseInt((_a = target.dataset.row) !== null && _a !== void 0 ? _a : "0", 10);
-            var col = parseInt((_b = target.dataset.col) !== null && _b !== void 0 ? _b : "0", 10);
-            var gameEnded = handlePlayerMove(gameBoard, board, row, col, currentPlayer);
+            const row = parseInt(target.dataset.row ?? "0", 10);
+            const col = parseInt(target.dataset.col ?? "0", 10);
+            const { gameEnded, draw } = handlePlayerMove(gameBoard, board, row, col, currentPlayer);
+            // Special state to check for illegal move
+            if (!gameEnded && draw) {
+                return;
+            }
             if (gameEnded) {
                 gameActive = false;
-                updateGameMessage("Player wins!");
+                if (draw) {
+                    updateGameMessage("Draw!");
+                }
+                else {
+                    updateGameMessage("Player wins!");
+                }
             }
             else {
                 currentPlayer = 2;
-                var botWin = handleBotMove(gameBoard, board);
-                if (botWin) {
+                const { gameEnded, draw } = handleBotMove(gameBoard, board);
+                if (gameEnded) {
                     gameActive = false;
-                    updateGameMessage("Bot wins!");
+                    if (draw) {
+                        updateGameMessage("Draw!");
+                    }
+                    else {
+                        updateGameMessage("Bot wins!");
+                    }
                 }
                 else {
                     currentPlayer = 1;
@@ -47,18 +60,18 @@ if (gameBoard instanceof HTMLElement) {
 function resetGame() {
     gameActive = true;
     currentPlayer = 1;
-    for (var row = 0; row < rows; row++) {
-        for (var col = 0; col < cols; col++) {
-            board.board[row][col] = 0;
-            var cell = gameBoard === null || gameBoard === void 0 ? void 0 : gameBoard.querySelector(".cell[data-row=\"".concat(row, "\"][data-col=\"").concat(col, "\"]"));
+    board.bitboards = [0n, 0n];
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            const cell = gameBoard?.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
             delete cell.dataset.player;
         }
     }
-    board.firstAvailableRows = new Array(cols).fill(rows - 1);
+    board.firstAvailableRows = new Array(cols).fill(0);
     updateGameMessage("");
 }
 if (newGameButton instanceof HTMLElement) {
-    newGameButton.addEventListener("click", function () {
+    newGameButton.addEventListener("click", () => {
         resetGame();
     });
 }

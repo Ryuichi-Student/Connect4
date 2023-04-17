@@ -6,8 +6,8 @@ export class randomStrategy implements Strategy {
         // Get an array of available columns
         const availableColumns: number[] = [];
         for (let col = 0; col < board.cols; col++) {
-            if (board.board[0][col] === 0) {
-                availableColumns.push(col);
+            if (board.firstAvailableRows[col] < board.rows) {
+                availableColumns.push(col)
             }
         }
 
