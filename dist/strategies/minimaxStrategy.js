@@ -72,4 +72,7 @@ export class minimaxStrategy {
         }
         return { score: bestScore, column: bestColumn };
     }
+    asyncChooseColumn(board) {
+        throw new Error("Method not implemented.");
+    }
 }

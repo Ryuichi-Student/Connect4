@@ -1,13 +1,21 @@
 from tensorflow.keras.optimizers import legacy as legacy_optimizers
 import numpy as np
-import cProfile
-from pstats import Stats
+# import cProfile
+# from pstats import Stats
 from time import sleep
-from tensorflow.keras import backend
+from tensorflow.keras import backend, layers, models, optimizers, losses, regularizers
+from tensorflow.keras.callbacks import TensorBoard, EarlyStopping
+import datetime
+import os
 
 # disable_eager_execution()
 
-from tensorflow.keras import layers, models, optimizers, losses, regularizers
+# CALLBACKS
+early_stopping = EarlyStopping(monitor='val_loss', patience=30, restore_best_weights=True)
+log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+os.makedirs(log_dir, exist_ok=True)
+tensorboard_callback = TensorBoard(log_dir=log_dir, histogram_freq=1, update_freq='epoch')
+
 
 def create_model(input_shape=(6, 7, 2)):
     l2_reg = 1e-4
@@ -33,19 +41,19 @@ def create_model(input_shape=(6, 7, 2)):
         x = layers.ReLU()(x)
 
     # Policy head
-    policy = layers.Conv2D(32, (1, 1), use_bias=False, kernel_regularizer=regularizers.l2(l2_reg))(x)
+    policy = layers.Conv2D(2, (1, 1), use_bias=False, kernel_regularizer=regularizers.l2(l2_reg))(x)
     policy = layers.BatchNormalization()(policy)
     policy = layers.ReLU()(policy)
     policy = layers.Flatten()(policy)
-    policy = layers.Dense(256, activation='relu')(policy)
+    # policy = layers.Dense(256, activation='relu')(policy)
     policy = layers.Dense(7, activation='softmax', name='policy')(policy)
 
     # Value head
-    value = layers.Conv2D(32, (1, 1), use_bias=False, kernel_regularizer=regularizers.l2(l2_reg))(x)
+    value = layers.Conv2D(1, (1, 1), use_bias=False, kernel_regularizer=regularizers.l2(l2_reg))(x)
     value = layers.BatchNormalization()(value)
     value = layers.ReLU()(value)
     value = layers.Flatten()(value)
-    value = layers.Dense(256, activation='relu')(value)
+    # value = layers.Dense(256, activation='relu')(value)
     value = layers.Dense(1, activation='tanh', name='value')(value)
 
     # Create the final model
@@ -56,7 +64,7 @@ def create_model(input_shape=(6, 7, 2)):
                    'value': losses.MeanSquaredError()}
 
     # Change if not on Mac.
-    optimizer = legacy_optimizers.Adam(learning_rate=0.001)
+    optimizer = legacy_optimizers.Adam(learning_rate=0.0001)
 
     # Compile the model
     final_model.compile(optimizer=optimizer, loss=losses_list,
@@ -116,7 +124,8 @@ class Connect4Model:
         print("inputs_reshaped.shape", inputs_reshaped.shape)
 
         backend.set_value(self.model.optimizer.learning_rate, learning_rate)
-        self.model.fit(inputs_reshaped, outputs, epochs=epochs, batch_size=batch_size)
+        self.model.fit(inputs_reshaped, outputs, epochs=epochs, batch_size=batch_size, validation_split=0.2,
+                       callbacks=[early_stopping, tensorboard_callback])
 
     def save_weights(self, path):
         self.model.save_weights(path)

@@ -111,7 +111,7 @@ class MCTSNode:
 
 
 class MCTS:
-    def __init__(self, state, model, num_simulations, c_param=4, max_batch_size=64):
+    def __init__(self, state, model, num_simulations, c_param=3, max_batch_size=64):
         self.model = model
         self.num_simulations = num_simulations
         self.c_param = c_param

@@ -9,12 +9,16 @@ from parallel_mcts import ParallelMCTS, ParallelMCTSNode
 def play_game(model, starting_player=1):
     state = Connect4State()
     state.current_player = starting_player
-    mcts = MCTS(state, model, 100)
-    # mcts = ParallelMCTS(state, model, 40)
+    # mcts = MCTS(state, model, 200)
+    mcts = ParallelMCTS(state, model, 100)
     while not state.is_terminal():
         print(state.get_board())
         action_probs, value = mcts.get_action_probs(state, state.get_valid_moves())
-
+        mcts.run()
+        print(action_probs, mcts.get_search_policy())
+        print(mcts.root)
+        print(mcts.root.children)
+        print("AI thinks best move is", mcts.get_best_move())
         print(f"AI thinks the position is worth {value} to player {state.current_player}")
         if state.current_player == 1:
             try:
@@ -26,10 +30,6 @@ def play_game(model, starting_player=1):
                 print("Invalid move!")
                 continue
         else:
-            mcts.run()
-            print(action_probs, mcts.get_search_policy())
-            print(mcts.root)
-            print(mcts.root.children)
             action = mcts.get_best_move()
         state = state.simulate(action)
         mcts.set_root(action)

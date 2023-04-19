@@ -20,4 +20,8 @@ export class randomStrategy implements Strategy {
         const randomIndex = Math.floor(Math.random() * availableColumns.length);
         return availableColumns[randomIndex];
     }
+
+    asyncChooseColumn(board: GameBoard): Promise<number> {
+        throw new Error("Method not implemented.");
+    }
 }

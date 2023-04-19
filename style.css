@@ -53,3 +53,8 @@ header {
     margin-top: 10px;
     font-size: 1.2em;
 }
+
+.game-board.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}

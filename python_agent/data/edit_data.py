@@ -40,7 +40,7 @@ def get_symmetries(data):
 
 
 if __name__ == '__main__':
-    for i in range(1,4):
+    for i in range(1,2):
         edit_data_from_file(f'python_agent/data/data{i}.p', flip_rewards)
     # edit_data_from_file('python_agent/data/data2.p', flip_rewards)
     # edit_data_from_file('python_agent/data/data1.p', flip_rewards)

@@ -33,3 +33,25 @@ export function handleBotMove(gameBoardElement: HTMLElement, gameBoard: GameBoar
     }
     return {gameEnded: false, draw: false};
 }
+
+export async function sendMoveToBackend(col:number) {
+    const response = await fetch('http://localhost:5001/ai/update_state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ move: col })
+    });
+}
+
+export function handleAsyncBotMove(gameBoardElement: HTMLElement, gameBoard: GameBoard, col: number): {gameEnded: boolean, draw: boolean}  {
+    const row = makeMove(gameBoard, col, 2);
+    if (row !== -1) {
+        updateBoardUI(gameBoardElement, row, col, 2);
+
+        if (isWinningMove(gameBoard, row, col, 2)) {
+            return {gameEnded: true, draw: false};
+        } else if (isDraw(gameBoard)) {
+            return {gameEnded: true, draw: true};
+        }
+    }
+    return {gameEnded: false, draw: false};
+}
