@@ -1,5 +1,6 @@
 # Note: There are a lot of micro-optimizations not present, but this is left for readability and ease of use.
-
+# TODO: This is an implementation for a local machine. Ideally, this would be implemented for a distributed system.
+# TODO: Maybe port this to SageMaker?
 import os
 import numpy as np
 from my_model import Connect4Model
@@ -27,10 +28,10 @@ __config = {
     "load_parameters": {
         # If true, load all data from REUSE_DATA_FROM to START_ITERATION and train on that.
         "TRAIN_FROM_PREVIOUS": False,
-        "REUSE_DATA_FROM": 1,
+        "REUSE_DATA_FROM": 18,
         # If true, load the previous best model.
         "LOAD_FROM_PREVIOUS": True,
-        "START_ITERATION": 20,
+        "START_ITERATION": 18,
         "LAST_ITERATION": 101,
         "MODEL_PATH": "python_agent/src/models/checkpoint",
         "BEST_MODEL_PATH": "python_agent/src/models/best_model",
@@ -45,19 +46,20 @@ __config = {
     "evaluation_parameters": {
         "win_rate_threshold": 0.7,
         "evaluation_interval": 3,
-        "num_evaluation_games": 9,
+        "num_evaluation_games": 8,
         # Number of processes to use to pit the models against each other. A good hallmark is num_processes/2.
         "pit_processes": 3
     },
     "training_parameters": {
-        "renew_data_interval": 5,
-        "epochs": 60,  # Number of training epochs
+        "renew_data_interval": 10,
+        "epochs": 150,  # Number of training epochs
         "batch_size": 64,
         # The worst thing to do is to have a learning_rate too high.
         # For example, a lr of 0.01 causes the model to converge to predicting every board value as 1.
-        "learning_rate": 0.0001,
+        "learning_rate": 0.001,
     }
 }
+
 
 def _play_game(state, mcts):
     # Make sure the state and mcts are reset, though they should already be.
@@ -77,11 +79,11 @@ def _play_game(state, mcts):
         # Pick an action based on the search policy.
         search_policy = mcts.get_search_policy()
         action = np.random.choice(actions, p=search_policy)
+        game_data.append((state.get_board(), search_policy, value))
 
         mcts.set_root(action)
-        state = state.simulate(action)
 
-        game_data.append((state.get_board(), search_policy, value))
+        state = state.simulate(action)
 
         # This should never be called. This will help debugging.
         if length > 42:
@@ -91,7 +93,7 @@ def _play_game(state, mcts):
 
 def get_reward(result, length, value):
     # Reward longer losses and shorter wins.
-    CONSTANTS = {"result": 0.5, "value": 0.5, "length": 0.4/42}
+    CONSTANTS = {"result": 0.8, "value": 0.2, "length": 0.4/42}
     length_factor = length * CONSTANTS["length"]
     # Use a linear combination of result and value
     reward = result * (1-length_factor) * CONSTANTS["result"] + value * CONSTANTS["value"]
@@ -125,6 +127,7 @@ def episode(args):
             result = state.has_winner()
             for board, policy, value in game_data[::-1]:
                 reward = get_reward(result, length, value)
+                # reward = result
                 data.append((board, policy, reward))
                 data.append((np.flip(board, axis=1), policy[::-1], reward))
                 result = -result
@@ -178,7 +181,8 @@ def train(model, data, epochs, batch_size, learning_rate=None):
     results = np.array(results, dtype=np.float32)
 
     model.fit(boards, [action_probs, results], epochs=epochs, batch_size=batch_size, learning_rate=learning_rate)
-
+    clear_session()
+    gc.collect()
 
 # A game between two models.
 def versus(args):
@@ -203,7 +207,7 @@ def versus(args):
     cur, opp = mcts1, mcts2
     while not state.is_terminal():
         cur.run()
-        action = cur.get_best_move()
+        action = np.random.choice(state.get_valid_moves(), p=cur.get_search_policy(1))
         mcts1.set_root(action)
         mcts2.set_root(action)
         state = state.simulate(action)
@@ -223,9 +227,9 @@ def pit(model1, model2, num_evaluation_games, num_processes):
     model2.save_weights(model2_weights)
 
     with mp.Pool(processes=num_processes) as pool:
-        winners = list(tqdm(pool.imap(versus, [(model1_weights, model2_weights, 10)
+        winners = list(tqdm(pool.imap(versus, [(model1_weights, model2_weights, 25)
                                                   for _ in range(num_evaluation_games//2)]), total=num_evaluation_games//2))
-        losers = list(tqdm(pool.imap(versus, [(model2_weights, model1_weights, 10)
+        losers = list(tqdm(pool.imap(versus, [(model2_weights, model1_weights, 25)
                                                  for _ in range(num_evaluation_games//2)]), total=num_evaluation_games//2))
 
     for winner in winners:
@@ -277,7 +281,7 @@ def main():
               batch_size=train_config["batch_size"], learning_rate=train_config["learning_rate"])
         model.save_weights(model_path)
 
-        win_rate = pit(model, best_model, 10)
+        win_rate = pit(model, best_model, 10, evaluation_config["pit_processes"])
 
         if win_rate > evaluation_config["win_rate_threshold"]:
             print("New model is better, updating best model.")

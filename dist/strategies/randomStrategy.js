@@ -15,4 +15,7 @@ export class randomStrategy {
         const randomIndex = Math.floor(Math.random() * availableColumns.length);
         return availableColumns[randomIndex];
     }
+    asyncChooseColumn(board) {
+        throw new Error("Method not implemented.");
+    }
 }

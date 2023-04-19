@@ -25,6 +25,8 @@ class ParallelMCTSNode(MCTSNode):
         super().__init__(state, mcts, prior_prob, parent, action)
         self.virtual_loss = virtual_loss
         self.lock = threading.Lock()
+        # self.reached will be set to True when the node is added to the queue
+        # self.visited will be set to True when the node has been processed
         self.visited = False
 
     def select(self, c_param):
@@ -37,11 +39,17 @@ class ParallelMCTSNode(MCTSNode):
 
             elif self.reached:
                 with self.mcts.expansion_lock:
+                    # Check if the node has been visited while waiting for the lock
+                    if self.visited:
+                        selected_child = self.best_child(c_param)
+                        selected_child.add_virtual_loss()
+                        return selected_child
                     self.mcts.process_prediction_queue(self, c_param)
 
             # The node has not been visited before. Expand the node.
             elif len(self.children) == 0:
                 with self.mcts.expansion_lock:
+                    # Check if the node has been visited while waiting for the lock
                     if self.visited:
                         selected_child = self.best_child(c_param)
                         selected_child.add_virtual_loss()
@@ -143,9 +151,7 @@ class ParallelMCTS(MCTS):
 
     def process_prediction_queue(self, cur, c_param):
         if len(self.prediction_queue) == 0:
-            selected_child = cur.best_child(c_param)
-            selected_child.add_virtual_loss()
-            return selected_child
+            raise Exception("No nodes in the queue")
         batch_states = [node.state.get_board() for node in self.prediction_queue]
         input_tensor = np.array(batch_states, dtype=np.float32)
         batch_probs, values = self.model.batched_predict(input_tensor, threads=self.num_threads, processes=4)
@@ -154,9 +160,10 @@ class ParallelMCTS(MCTS):
             filtered_probs = action_probs_numba_helper(node.valid_actions, prior_probs)
             node.expand_from_queue(filtered_probs)
             node.value = value
+            node.visited = True
 
         self.prediction_queue.clear()
-        self.visited = True
+        cur.visited = True
 
     def reset(self, state):
         self.root = ParallelMCTSNode(state, self)

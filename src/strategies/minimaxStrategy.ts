@@ -90,4 +90,8 @@ export class minimaxStrategy implements Strategy {
         return { score: bestScore, column: bestColumn };
     }
 
+    asyncChooseColumn(board: GameBoard): Promise<number> {
+        throw new Error("Method not implemented.");
+    }
+
 }

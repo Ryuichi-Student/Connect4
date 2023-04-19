@@ -1,15 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3a966143-458e-47bd-aa05-7451da805eca" name="Changes" comment="First working version.">
+    <list default="true" id="3a966143-458e-47bd-aa05-7451da805eca" name="Changes" comment="Added batched prediction. Parallel MCTS version is a bit janky because of a weird Tensorflow problem that is not documented or mentioned online (see: my_model.py) - probably a Mac problem.&#10;&#10;Another 1.5x speed improvement + good scaling capabilities, especially for more RAM.">
+      <change afterPath="$PROJECT_DIR$/src/strategies/python_agent_backend.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Connect4GPT4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Connect4GPT4.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_agent/src/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/src/game.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/bot.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bot.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/gameLogic.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/gameLogic.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/strategies/minimaxStrategy.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/strategies/minimaxStrategy.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/strategies/randomStrategy.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/strategies/randomStrategy.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/strategies/strategies.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/strategies/strategies.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python_agent/data/edit_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/data/edit_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python_agent/data/tmp/data4.p" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/python_agent/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python_agent/old_data/check_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/old_data/check_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python_agent/src/mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/src/mcts.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python_agent/src/mp_self_play.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/src/mp_self_play.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python_agent/src/my_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/src/my_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python_agent/src/parallel_mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_agent/src/parallel_mcts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_agent/src/self_play.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bot.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/bot.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gameLogic.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/gameLogic.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategies/aiStrategy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategies/aiStrategy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategies/minimaxStrategy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategies/minimaxStrategy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategies/randomStrategy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategies/randomStrategy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategies/strategies.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategies/strategies.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,34 +57,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/ryuichileotakashige/IdeaProjects/Connect4GPT4/python_agent",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "ts.external.directory.path": "/Users/ryuichileotakashige/IdeaProjects/Connect4GPT4/node_modules/typescript/lib"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/ryuichileotakashige/IdeaProjects/Connect4GPT4/python_agent/src/best_model&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/ryuichileotakashige/IdeaProjects/Connect4GPT4/node_modules/typescript/lib&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/python_agent/src/best_model" />
+      <recent name="$PROJECT_DIR$/python_agent/data" />
       <recent name="$PROJECT_DIR$/python_agent" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/python_agent/old_data/set5" />
+      <recent name="$PROJECT_DIR$/python_agent/src/old_models" />
+      <recent name="$PROJECT_DIR$/python_agent/old_data/set4" />
       <recent name="$PROJECT_DIR$/python_agent/data/tmp" />
       <recent name="$PROJECT_DIR$/python_agent/data" />
-      <recent name="$PROJECT_DIR$/python_agent/src/old_models" />
-      <recent name="$PROJECT_DIR$/python_agent/old_data/set3" />
-      <recent name="$PROJECT_DIR$/python_agent/old_data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.check_data">
+  <component name="RunManager" selected="Python.edit_data">
     <configuration name="check_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Connect4GPT4" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -81,6 +101,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_agent/old_data/check_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="edit_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Connect4GPT4" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_agent/data" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_agent/data/edit_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -157,6 +199,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.edit_data" />
         <item itemvalue="Python.check_data" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.self_play" />
@@ -180,7 +223,7 @@
       <workItem from="1681248575326" duration="20513000" />
       <workItem from="1681301103605" duration="33762000" />
       <workItem from="1681404041382" duration="9504000" />
-      <workItem from="1681460857974" duration="123240000" />
+      <workItem from="1681460857974" duration="187532000" />
     </task>
     <task id="LOCAL-00001" summary="First working version.">
       <created>1680994856527</created>
@@ -203,7 +246,21 @@
       <option name="project" value="LOCAL" />
       <updated>1681720312555</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Cleaned the code up + fixed ParallelMCTS (6 -&gt; 4.5mins per 4x2 games)">
+      <created>1681727760604</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1681727760604</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added batched prediction. Parallel MCTS version is a bit janky because of a weird Tensorflow problem that is not documented or mentioned online (see: my_model.py) - probably a Mac problem.&#10;&#10;Another 1.5x speed improvement + good scaling capabilities, especially for more RAM.">
+      <created>1681740196606</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1681740196606</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,16 +280,19 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Now includes compiled js files." />
     <MESSAGE value="First working version." />
-    <option name="LAST_COMMIT_MESSAGE" value="First working version." />
+    <MESSAGE value="Cleaned the code up + fixed ParallelMCTS (6 -&gt; 4.5mins per 4x2 games)" />
+    <MESSAGE value="Added batched prediction. Parallel MCTS version is a bit janky because of a weird Tensorflow problem that is not documented or mentioned online (see: my_model.py) - probably a Mac problem.&#10;&#10;Another 1.5x speed improvement + good scaling capabilities, especially for more RAM." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added batched prediction. Parallel MCTS version is a bit janky because of a weird Tensorflow problem that is not documented or mentioned online (see: my_model.py) - probably a Mac problem.&#10;&#10;Another 1.5x speed improvement + good scaling capabilities, especially for more RAM." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Connect4GPT4$test.coverage" NAME="test Coverage Results" MODIFIED="1681166252508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/src" />
-    <SUITE FILE_PATH="coverage/Connect4GPT4$check_data.coverage" NAME="check_data Coverage Results" MODIFIED="1681686927573" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/old_data" />
-    <SUITE FILE_PATH="coverage/Connect4GPT4$self_play.coverage" NAME="self_play Coverage Results" MODIFIED="1681209539133" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/src" />
     <SUITE FILE_PATH="coverage/Connect4GPT4$main.coverage" NAME="main Coverage Results" MODIFIED="1681314978066" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent" />
+    <SUITE FILE_PATH="coverage/Connect4GPT4$edit_data.coverage" NAME="edit_data Coverage Results" MODIFIED="1681820304141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/data" />
+    <SUITE FILE_PATH="coverage/Connect4GPT4$check_data.coverage" NAME="check_data Coverage Results" MODIFIED="1681686927573" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/old_data" />
+    <SUITE FILE_PATH="coverage/Connect4GPT4$test.coverage" NAME="test Coverage Results" MODIFIED="1681166252508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/src" />
+    <SUITE FILE_PATH="coverage/Connect4GPT4$self_play.coverage" NAME="self_play Coverage Results" MODIFIED="1681209539133" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python_agent/src" />
   </component>
 </project>

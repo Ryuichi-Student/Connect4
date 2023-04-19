@@ -16,7 +16,9 @@ export class GameBoard {
 }
 
 export interface Strategy {
-    chooseColumn(board: GameBoard): number | Promise<number>;
+    chooseColumn(board: GameBoard): number;
+
+    asyncChooseColumn(board: GameBoard): Promise<number>;
 }
 
 // The rest of the code in board.ts remains the same
